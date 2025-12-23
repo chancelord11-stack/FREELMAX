@@ -1,6 +1,6 @@
 // ============================================
 // Types basés sur les schémas SQL Freenance
-// VERSION CORRIGÉE - Alignée avec la base de données
+// VERSION CORRIGÉE V2 - Tous les types manquants ajoutés
 // ============================================
 
 // ============================================
@@ -52,7 +52,6 @@ export enum OrderStatus {
   Refunded = 'refunded'
 }
 
-// ✅ CORRIGÉ: TransactionType aligné avec la base de données
 export enum TransactionType {
   Deposit = 'deposit',
   EscrowHold = 'escrow_hold',
@@ -62,12 +61,10 @@ export enum TransactionType {
   Commission = 'commission',
   Bonus = 'bonus',
   Penalty = 'penalty',
-  // ✅ AJOUTÉ: Types supplémentaires utilisés dans le code
   Earning = 'earning',
   Transfer = 'transfer'
 }
 
-// ✅ CORRIGÉ: PaymentMethod aligné avec la base de données (Mobile Money Afrique)
 export enum PaymentMethod {
   MtnMomo = 'mtn_momo',
   MoovMoney = 'moov_money',
@@ -75,7 +72,6 @@ export enum PaymentMethod {
   Wave = 'wave',
   BankTransfer = 'bank_transfer',
   Paypal = 'paypal',
-  // Anciens types pour compatibilité
   CreditCard = 'credit_card',
   DebitCard = 'debit_card',
   MobileMoney = 'mobile_money'
@@ -158,6 +154,7 @@ export interface Profile {
   level: FreelancerLevel;
   skills: string[];
   portfolio_urls: string[];
+  portfolio: string[];  // ✅ AJOUTÉ - Alias pour portfolio_urls
   hourly_rate: number | null;
   available: boolean;
   
@@ -165,11 +162,13 @@ export interface Profile {
   company_name: string | null;
   company_size: string | null;
   industry: string | null;
+  tax_id: string | null;  // ✅ AJOUTÉ
   
   // Statistics
   rating_avg: number;
   reviews_count: number;
   orders_completed: number;
+  completed_projects: number;  // ✅ AJOUTÉ
   total_earnings: number;
   total_spent: number;
   response_time_avg: number | null;
@@ -563,6 +562,7 @@ export interface Review {
   
   // Rating
   rating: number;
+  rating_overall: number;  // ✅ AJOUTÉ
   communication_rating: number | null;
   quality_rating: number | null;
   delivery_rating: number | null;
@@ -625,7 +625,24 @@ export interface ServiceWithDetails extends Service {
   reviews?: Review[];
 }
 
+// ✅ AJOUTÉ - Alias pour ServiceWithDetails
+export interface ServiceWithFreelancer extends Service {
+  freelancer?: Profile;
+  category?: Category;
+  subcategory?: Category;
+  reviews?: Review[];
+}
+
 export interface ProjectWithDetails extends Project {
+  client?: Profile;
+  category?: Category;
+  subcategory?: Category;
+  proposals?: Proposal[];
+  assigned_freelancer?: Profile;
+}
+
+// ✅ AJOUTÉ - Alias pour ProjectWithDetails
+export interface ProjectWithClient extends Project {
   client?: Profile;
   category?: Category;
   subcategory?: Category;
@@ -642,6 +659,12 @@ export interface OrderWithDetails extends Order {
 }
 
 export interface ProposalWithDetails extends Proposal {
+  freelancer?: Profile;
+  project?: Project;
+}
+
+// ✅ AJOUTÉ - Alias pour ProposalWithDetails
+export interface ProposalWithFreelancer extends Proposal {
   freelancer?: Profile;
   project?: Project;
 }
