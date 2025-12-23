@@ -12,7 +12,7 @@ interface WalletProps {
   userId: string;
 }
 
-// ✅ Valeur par défaut complète pour le wallet
+// Valeur par défaut complète pour le wallet
 const defaultWallet: WalletType = {
   id: '',
   user_id: '',
@@ -74,28 +74,33 @@ const Wallet: React.FC<WalletProps> = ({ userId }) => {
     { name: 'Dim', montant: 30000 },
   ];
 
-  // ✅ Fonction pour obtenir le label du type de transaction
-  const getTransactionTypeLabel = (type: TransactionType): string => {
-    const labels: Record<TransactionType, string> = {
-      [TransactionType.Deposit]: 'Dépôt',
-      [TransactionType.EscrowHold]: 'Blocage Escrow',
-      [TransactionType.EscrowRelease]: 'Libération Escrow',
-      [TransactionType.Withdrawal]: 'Retrait',
-      [TransactionType.Refund]: 'Remboursement',
-      [TransactionType.Commission]: 'Commission',
-      [TransactionType.Bonus]: 'Bonus',
-      [TransactionType.Penalty]: 'Pénalité',
-    };
-    return labels[type] || type;
+  // ✅ CORRIGÉ - Labels pour TOUS les types de transaction (incluant earning et transfer)
+  const transactionTypeLabels: Record<TransactionType, string> = {
+    [TransactionType.Deposit]: 'Dépôt',
+    [TransactionType.EscrowHold]: 'Blocage Escrow',
+    [TransactionType.EscrowRelease]: 'Libération Escrow',
+    [TransactionType.Withdrawal]: 'Retrait',
+    [TransactionType.Refund]: 'Remboursement',
+    [TransactionType.Commission]: 'Commission',
+    [TransactionType.Bonus]: 'Bonus',
+    [TransactionType.Penalty]: 'Pénalité',
+    [TransactionType.Earning]: 'Gain',      // ✅ AJOUTÉ
+    [TransactionType.Transfer]: 'Transfert', // ✅ AJOUTÉ
   };
 
-  // ✅ Fonction pour obtenir la couleur selon le type
+  // Fonction pour obtenir le label du type de transaction
+  const getTransactionTypeLabel = (type: TransactionType): string => {
+    return transactionTypeLabels[type] || type;
+  };
+
+  // Fonction pour obtenir la couleur selon le type
   const getTransactionColor = (type: TransactionType): string => {
     const positiveTypes = [
       TransactionType.Deposit,
       TransactionType.EscrowRelease,
       TransactionType.Refund,
       TransactionType.Bonus,
+      TransactionType.Earning,
     ];
     return positiveTypes.includes(type) ? 'text-green-600' : 'text-red-600';
   };
