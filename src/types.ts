@@ -1,10 +1,10 @@
 // ============================================
 // Types basés sur les schémas SQL Freenance
-// VERSION CORRIGÉE V3 - Types manquants ajoutés pour le build
+// VERSION CORRIGÉE V4 - Build Fix
 // ============================================
 
 // ============================================
-// ENUMS (Alignés avec la base de données SQL)
+// ENUMS
 // ============================================
 
 export enum UserRole {
@@ -118,7 +118,7 @@ export enum NotificationType {
 }
 
 // ============================================
-// INTERFACES - Tables Principales
+// INTERFACES
 // ============================================
 
 export interface Profile {
@@ -154,7 +154,7 @@ export interface Profile {
   level: FreelancerLevel;
   skills: string[];
   portfolio_urls: string[];
-  portfolio: string[];
+  portfolio: any[]; // ✅ Corrigé: Ajouté pour ProfileEdit
   hourly_rate: number | null;
   available: boolean;
   
@@ -168,7 +168,7 @@ export interface Profile {
   rating_avg: number;
   reviews_count: number;
   orders_completed: number;
-  completed_projects: number;
+  completed_projects: number; // ✅ Corrigé
   total_earnings: number;
   total_spent: number;
   response_time_avg: number | null;
@@ -210,43 +210,36 @@ export interface Service {
   category_id: string;
   subcategory_id: string | null;
   
-  // Basic info
   title: string;
   slug: string;
   short_description: string | null;
   description: string;
   
-  // Media
   cover_image_url: string | null;
   gallery: string[];
   video_url: string | null;
   
-  // Pricing
   price_basic: number;
   price_standard: number | null;
   price_premium: number | null;
-
-  // ✅ CORRECTION: Ajout des champs manquants pour le build
+  
+  // ✅ Corrigé: Champs features ajoutés
   features_basic?: string[];
   features_standard?: string[];
   features_premium?: string[];
   
-  // Delivery
   delivery_days: number;
   revision_limit: number;
   additional_revision_price: number | null;
   
-  // Features
   tags: string[];
   requirements: any;
   faq: any[];
   
-  // SEO
   seo_title: string | null;
   seo_description: string | null;
   seo_keywords: string[];
   
-  // Statistics
   views_count: number;
   clicks_count: number;
   favorites_count: number;
@@ -254,12 +247,10 @@ export interface Service {
   rating_avg: number;
   reviews_count: number;
   
-  // Status
   status: ServiceStatus;
   is_featured: boolean;
   is_urgent: boolean;
   
-  // Timestamps
   created_at: string;
   updated_at: string;
   published_at: string | null;
@@ -273,42 +264,32 @@ export interface Project {
   subcategory_id: string | null;
   assigned_freelancer_id: string | null;
   
-  // Basic info
   title: string;
   description: string;
   requirements: any;
   attachments: string[];
   
-  // Budget
   budget_type: 'fixed' | 'hourly' | 'range';
   budget_min: number | null;
   budget_max: number | null;
+  hourly_rate?: number | null; // ✅ Corrigé
   
-  // ✅ CORRECTION: Ajout du champ manquant pour le build
-  hourly_rate?: number | null;
-
-  // Timeline
   deadline: string | null;
   estimated_duration: string | null;
   
-  // Requirements
   required_skills: string[];
   experience_level: 'entry' | 'intermediate' | 'expert' | 'any';
   
-  // Location
   location_type: 'remote' | 'onsite' | 'hybrid';
   city: string | null;
   country: string | null;
   
-  // Status
   status: ProjectStatus;
   visibility: 'public' | 'private' | 'invite_only';
   
-  // Statistics
   views_count: number;
   proposals_count: number;
   
-  // Timestamps
   created_at: string;
   updated_at: string;
   published_at: string | null;
@@ -323,12 +304,10 @@ export interface Proposal {
   project_id: string;
   freelancer_id: string;
   
-  // Proposal content
   cover_letter: string;
   proposed_budget: number;
   proposed_timeline: number;
   
-  // Milestones
   milestones: {
     title: string;
     description: string;
@@ -336,16 +315,10 @@ export interface Proposal {
     duration_days: number;
   }[];
   
-  // Attachments
   attachments: string[];
-  
-  // Status
   status: ProposalStatus;
-  
-  // Client response
   client_notes: string | null;
   
-  // Timestamps
   created_at: string;
   updated_at: string;
   submitted_at: string | null;
@@ -360,35 +333,24 @@ export interface Order {
   buyer_id: string;
   seller_id: string;
   
-  // Order details
   title: string;
   description: string | null;
   requirements: string | null;
-  
-  // Package
   package_type: 'basic' | 'standard' | 'premium' | 'custom';
   
-  // Pricing
   price: number;
   commission_rate: number;
   commission_amount: number;
   freelancer_earnings: number;
   
-  // Delivery
   delivery_days: number;
   due_date: string | null;
   
-  // Revisions
   revisions_limit: number;
   revisions_used: number;
-  
-  // Deliverables
   deliverables: any[];
-  
-  // Status
   status: OrderStatus;
   
-  // Timestamps
   created_at: string;
   updated_at: string;
   accepted_at: string | null;
@@ -396,37 +358,23 @@ export interface Order {
   delivered_at: string | null;
   completed_at: string | null;
   cancelled_at: string | null;
-  
-  // Cancellation
   cancelled_by: string | null;
   cancellation_reason: string | null;
 }
 
-// ============================================
-// INTERFACES - Tables Financières
-// ============================================
-
 export interface Wallet {
   id: string;
   user_id: string;
-  
-  // Balances
   available_balance: number;
   pending_balance: number;
   total_earnings: number;
   total_withdrawn: number;
-  
-  // Withdrawal settings
   withdrawal_method: PaymentMethod | null;
   withdrawal_details: any;
   min_withdrawal_amount: number;
-  
-  // Statistics
   successful_withdrawals: number;
   failed_withdrawals: number;
   last_withdrawal_at: string | null;
-  
-  // Timestamps
   created_at: string;
   updated_at: string;
 }
@@ -436,34 +384,20 @@ export interface Transaction {
   user_id: string;
   wallet_id: string | null;
   order_id: string | null;
-  
-  // Transaction details
   type: TransactionType;
   amount: number;
   currency: string;
-  
-  // Status
   status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled' | 'refunded';
-  
-  // Payment details
   payment_method: PaymentMethod | null;
   payment_reference: string | null;
   payment_gateway: string | null;
   gateway_response: any | null;
-  
-  // Description
   description: string | null;
   metadata: any;
-  
-  // Balances after transaction
   balance_before: number | null;
   balance_after: number | null;
-  
-  // Error handling
   error_message: string | null;
   retry_count: number;
-  
-  // Timestamps
   created_at: string;
   updated_at: string;
   processed_at: string | null;
@@ -473,48 +407,30 @@ export interface Withdrawal {
   id: string;
   user_id: string;
   wallet_id: string;
-  
-  // Amount
   amount: number;
   currency: string;
   fee: number;
   net_amount: number;
-  
-  // Method
   method: PaymentMethod;
   details: any;
-  
-  // Status
   status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
-  
-  // Processing
   processed_by: string | null;
   processed_at: string | null;
   reference: string | null;
   failure_reason: string | null;
-  
-  // Timestamps
   created_at: string;
   updated_at: string;
 }
-
-// ============================================
-// INTERFACES - Communication
-// ============================================
 
 export interface Conversation {
   id: string;
   participant_1_id: string;
   participant_2_id: string;
   order_id: string | null;
-  
-  // Status
   last_message_at: string | null;
   last_message_preview: string | null;
   unread_count_1: number;
   unread_count_2: number;
-  
-  // Timestamps
   created_at: string;
   updated_at: string;
 }
@@ -525,38 +441,41 @@ export interface Message {
   sender_id: string;
   receiver_id: string;
   
-  // Content
-  content: string;
+  // ✅ Corrigé: message au lieu de content, et ajout de order_id
+  message: string; 
+  order_id: string | null;
   attachments: string[];
   
-  // Status
   is_read: boolean;
   read_at: string | null;
   is_edited: boolean;
   is_deleted: boolean;
+  is_deleted_by_sender?: boolean;
+  is_deleted_by_receiver?: boolean;
   
-  // Timestamps
   created_at: string;
   updated_at: string;
+}
+
+// ✅ Ajouté: Type manquant utilisé dans messageService
+export interface ConversationInfo {
+  id: string;
+  participant: Profile;
+  last_message: Message;
+  unread_count: number;
 }
 
 export interface Notification {
   id: string;
   user_id: string;
-  
-  // Content
   type: NotificationType;
   title: string;
   message: string;
   action_url: string | null;
   data: any;
-  
-  // Status
   is_read: boolean;
   read_at: string | null;
   priority: 'low' | 'normal' | 'high' | 'urgent';
-  
-  // Timestamps
   created_at: string;
   expires_at: string | null;
 }
@@ -568,29 +487,23 @@ export interface Review {
   reviewed_id: string;
   service_id: string | null;
   
-  // Rating
   rating: number;
-  rating_overall: number;
+  rating_overall: number; // ✅ Ajouté
   communication_rating: number | null;
   quality_rating: number | null;
   delivery_rating: number | null;
   
-  // Content
   title: string | null;
   comment: string;
   
-  // Response
   response: string | null;
   response_at: string | null;
+  reply?: string | null; // ✅ Ajouté
+  replied_at?: string | null;
   
-  // Status
   status: 'pending' | 'published' | 'hidden' | 'flagged';
   is_public: boolean;
-  
-  // Votes
   helpful_count: number;
-  
-  // Timestamps
   created_at: string;
   updated_at: string;
 }
@@ -600,30 +513,22 @@ export interface Dispute {
   order_id: string;
   opened_by: string;
   disputed_user_id: string;
-  
-  // Details
   type: DisputeType;
   reason: string;
   description: string;
   evidences: string[];
-  
-  // Status
   status: DisputeStatus;
-  
-  // Resolution
   assigned_to: string | null;
   resolution: string | null;
   resolution_notes: string | null;
   refund_amount: number | null;
-  
-  // Timestamps
   created_at: string;
   updated_at: string;
   resolved_at: string | null;
 }
 
 // ============================================
-// INTERFACES - Types avec Relations
+// Types avec Relations (Aliases)
 // ============================================
 
 export interface ServiceWithDetails extends Service {
@@ -632,13 +537,8 @@ export interface ServiceWithDetails extends Service {
   subcategory?: Category;
   reviews?: Review[];
 }
-
-export interface ServiceWithFreelancer extends Service {
-  freelancer?: Profile;
-  category?: Category;
-  subcategory?: Category;
-  reviews?: Review[];
-}
+// ✅ Alias manquant
+export type ServiceWithFreelancer = ServiceWithDetails;
 
 export interface ProjectWithDetails extends Project {
   client?: Profile;
@@ -647,14 +547,8 @@ export interface ProjectWithDetails extends Project {
   proposals?: Proposal[];
   assigned_freelancer?: Profile;
 }
-
-export interface ProjectWithClient extends Project {
-  client?: Profile;
-  category?: Category;
-  subcategory?: Category;
-  proposals?: Proposal[];
-  assigned_freelancer?: Profile;
-}
+// ✅ Alias manquant
+export type ProjectWithClient = ProjectWithDetails;
 
 export interface OrderWithDetails extends Order {
   buyer?: Profile;
@@ -668,11 +562,8 @@ export interface ProposalWithDetails extends Proposal {
   freelancer?: Profile;
   project?: Project;
 }
-
-export interface ProposalWithFreelancer extends Proposal {
-  freelancer?: Profile;
-  project?: Project;
-}
+// ✅ Alias manquant
+export type ProposalWithFreelancer = ProposalWithDetails;
 
 export interface ConversationWithDetails extends Conversation {
   participant_1?: Profile;
@@ -682,7 +573,7 @@ export interface ConversationWithDetails extends Conversation {
 }
 
 // ============================================
-// INTERFACES - Props des composants
+// Props des composants
 // ============================================
 
 export interface OrdersProps {
@@ -693,10 +584,4 @@ export interface OrdersProps {
 export interface ProfileProps {
   userId: string;
   onEdit?: () => void;
-}
-
-export interface EditProfileProps {
-  userId: string;
-  onSave?: (updatedProfile: Profile) => void;
-  onCancel?: () => void;
 }
