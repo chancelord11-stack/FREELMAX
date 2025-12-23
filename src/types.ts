@@ -1,6 +1,6 @@
 // ============================================
 // Types basés sur les schémas SQL Freenance
-// VERSION CORRIGÉE V2 - Tous les types manquants ajoutés
+// VERSION CORRIGÉE V3 - Types manquants ajoutés pour le build
 // ============================================
 
 // ============================================
@@ -154,7 +154,7 @@ export interface Profile {
   level: FreelancerLevel;
   skills: string[];
   portfolio_urls: string[];
-  portfolio: string[];  // ✅ AJOUTÉ - Alias pour portfolio_urls
+  portfolio: string[];
   hourly_rate: number | null;
   available: boolean;
   
@@ -162,13 +162,13 @@ export interface Profile {
   company_name: string | null;
   company_size: string | null;
   industry: string | null;
-  tax_id: string | null;  // ✅ AJOUTÉ
+  tax_id: string | null;
   
   // Statistics
   rating_avg: number;
   reviews_count: number;
   orders_completed: number;
-  completed_projects: number;  // ✅ AJOUTÉ
+  completed_projects: number;
   total_earnings: number;
   total_spent: number;
   response_time_avg: number | null;
@@ -225,6 +225,11 @@ export interface Service {
   price_basic: number;
   price_standard: number | null;
   price_premium: number | null;
+
+  // ✅ CORRECTION: Ajout des champs manquants pour le build
+  features_basic?: string[];
+  features_standard?: string[];
+  features_premium?: string[];
   
   // Delivery
   delivery_days: number;
@@ -279,6 +284,9 @@ export interface Project {
   budget_min: number | null;
   budget_max: number | null;
   
+  // ✅ CORRECTION: Ajout du champ manquant pour le build
+  hourly_rate?: number | null;
+
   // Timeline
   deadline: string | null;
   estimated_duration: string | null;
@@ -562,7 +570,7 @@ export interface Review {
   
   // Rating
   rating: number;
-  rating_overall: number;  // ✅ AJOUTÉ
+  rating_overall: number;
   communication_rating: number | null;
   quality_rating: number | null;
   delivery_rating: number | null;
@@ -625,7 +633,6 @@ export interface ServiceWithDetails extends Service {
   reviews?: Review[];
 }
 
-// ✅ AJOUTÉ - Alias pour ServiceWithDetails
 export interface ServiceWithFreelancer extends Service {
   freelancer?: Profile;
   category?: Category;
@@ -641,7 +648,6 @@ export interface ProjectWithDetails extends Project {
   assigned_freelancer?: Profile;
 }
 
-// ✅ AJOUTÉ - Alias pour ProjectWithDetails
 export interface ProjectWithClient extends Project {
   client?: Profile;
   category?: Category;
@@ -663,7 +669,6 @@ export interface ProposalWithDetails extends Proposal {
   project?: Project;
 }
 
-// ✅ AJOUTÉ - Alias pour ProposalWithDetails
 export interface ProposalWithFreelancer extends Proposal {
   freelancer?: Profile;
   project?: Project;
