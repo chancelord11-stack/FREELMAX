@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { Order, OrderWithDetails } from '../types';
+import { Order, OrderWithDetails, OrderStatus } from '../types';
 
 export const orderService = {
   // Récupérer toutes les commandes d'un utilisateur
@@ -90,7 +90,7 @@ export const orderService = {
   // Accepter une commande
   async acceptOrder(orderId: string): Promise<Order | null> {
     return this.updateOrder(orderId, {
-      status: 'confirmed',
+      status: OrderStatus.Confirmed,  // ✅ Utilise l'enum au lieu de la string
       accepted_at: new Date().toISOString(),
     });
   },
@@ -98,7 +98,7 @@ export const orderService = {
   // Démarrer une commande
   async startOrder(orderId: string): Promise<Order | null> {
     return this.updateOrder(orderId, {
-      status: 'in_progress',
+      status: OrderStatus.InProgress,  // ✅ Utilise l'enum
       started_at: new Date().toISOString(),
     });
   },
@@ -106,7 +106,7 @@ export const orderService = {
   // Livrer une commande
   async deliverOrder(orderId: string, deliverables: any[]): Promise<Order | null> {
     return this.updateOrder(orderId, {
-      status: 'delivered',
+      status: OrderStatus.Delivered,  // ✅ Utilise l'enum
       delivered_at: new Date().toISOString(),
       deliverables,
     });
@@ -120,7 +120,7 @@ export const orderService = {
     }
     
     return this.updateOrder(orderId, {
-      status: 'revision_requested',
+      status: OrderStatus.RevisionRequested,  // ✅ Utilise l'enum
       revisions_used: order.revisions_used + 1,
     });
   },
@@ -128,7 +128,7 @@ export const orderService = {
   // Compléter une commande
   async completeOrder(orderId: string): Promise<Order | null> {
     return this.updateOrder(orderId, {
-      status: 'completed',
+      status: OrderStatus.Completed,  // ✅ Utilise l'enum
       completed_at: new Date().toISOString(),
     });
   },
@@ -136,7 +136,7 @@ export const orderService = {
   // Annuler une commande
   async cancelOrder(orderId: string, cancelledBy: string, reason: string): Promise<Order | null> {
     return this.updateOrder(orderId, {
-      status: 'cancelled',
+      status: OrderStatus.Cancelled,  // ✅ Utilise l'enum
       cancelled_at: new Date().toISOString(),
       cancelled_by: cancelledBy,
       cancellation_reason: reason,
@@ -172,10 +172,10 @@ export const orderService = {
     
     return {
       total: data.length,
-      pending: data.filter(o => o.status === 'pending').length,
-      in_progress: data.filter(o => o.status === 'in_progress').length,
-      completed: data.filter(o => o.status === 'completed').length,
-      cancelled: data.filter(o => o.status === 'cancelled').length,
+      pending: data.filter(o => o.status === OrderStatus.Pending).length,
+      in_progress: data.filter(o => o.status === OrderStatus.InProgress).length,
+      completed: data.filter(o => o.status === OrderStatus.Completed).length,
+      cancelled: data.filter(o => o.status === OrderStatus.Cancelled).length,
       total_amount: data.reduce((sum, o) => sum + Number(o.price), 0),
     };
   },
