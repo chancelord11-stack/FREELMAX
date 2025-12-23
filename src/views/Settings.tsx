@@ -1,16 +1,23 @@
 import React, { useState } from 'react';
 import { Profile } from '../types';
-import { User, Lock, Bell, CreditCard, Shield, Mail } from 'lucide-react';
+import { User, Lock, Bell, CreditCard } from 'lucide-react';
 
 interface SettingsProps {
   profile: Profile | null;
-  onUpdate: (userId: string) => void;
+  // ✅ CORRECTION: Accepter Profile au lieu de string pour correspondre à App.tsx
+  onUpdate: (profile: Profile) => void; 
 }
 
 const Settings: React.FC<SettingsProps> = ({ profile, onUpdate }) => {
   const [activeTab, setActiveTab] = useState<'general' | 'security' | 'notifications' | 'payment'>('general');
 
   if (!profile) return null;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Simulation de mise à jour
+    onUpdate(profile);
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -53,7 +60,7 @@ const Settings: React.FC<SettingsProps> = ({ profile, onUpdate }) => {
           {activeTab === 'general' && (
             <div className="card p-6">
               <h2 className="text-xl font-semibold mb-6">Informations générales</h2>
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Prénom</label>
@@ -117,7 +124,7 @@ const Settings: React.FC<SettingsProps> = ({ profile, onUpdate }) => {
                     <span className="font-medium">{notif.label}</span>
                     <input
                       type="checkbox"
-                      defaultChecked={profile.notification_preferences[notif.key as keyof typeof profile.notification_preferences]}
+                      defaultChecked={profile.notification_preferences?.[notif.key as keyof typeof profile.notification_preferences]}
                       className="w-5 h-5 text-primary-600 rounded"
                     />
                   </label>
