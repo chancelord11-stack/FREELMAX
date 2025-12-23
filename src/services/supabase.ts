@@ -1,23 +1,38 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+// ✅ Pour Vite, utiliser import.meta.env au lieu de process.env
+// Assurez-vous d'avoir un fichier .env à la racine avec:
+// VITE_SUPABASE_URL=votre_url
+// VITE_SUPABASE_ANON_KEY=votre_clé
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
-export const signIn = async (email: string, password: string) => {
-  return await supabase.auth.signInWithPassword({ email, password });
-};
+// Validation des variables d'environnement
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('❌ Variables d\'environnement Supabase manquantes!');
+  console.error('Créez un fichier .env avec:');
+  console.error('VITE_SUPABASE_URL=https://votre-projet.supabase.co');
+  console.error('VITE_SUPABASE_ANON_KEY=votre_clé_anon');
+}
 
-export const signUp = async (email: string, password: string, metadata: any) => {
-  return await supabase.auth.signUp({ email, password, options: { data: metadata } });
-};
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key',
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  }
+);
 
-export const signOut = async () => {
-  return await supabase.auth.signOut();
-};
-
-export const getCurrentUser = async () => {
-  const { data: { session } } = await supabase.auth.getSession();
-  return session?.user || null;
+// Helper pour vérifier la connexion
+export const checkSupabaseConnection = async (): Promise<boolean> => {
+  try {
+    const { error } = await supabase.from('profiles').select('count').limit(1);
+    return !error;
+  } catch {
+    return false;
+  }
 };
