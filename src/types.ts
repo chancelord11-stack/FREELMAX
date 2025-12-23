@@ -1,10 +1,12 @@
 // ============================================
 // Types basés sur les schémas SQL Freenance
+// VERSION CORRIGÉE - Alignée avec la base de données
 // ============================================
 
 // ============================================
-// ENUMS (PARTIE_1_Extensions_et_Types.sql)
+// ENUMS (Alignés avec la base de données SQL)
 // ============================================
+
 export enum UserRole {
   Freelancer = 'freelancer',
   Client = 'client',
@@ -50,6 +52,7 @@ export enum OrderStatus {
   Refunded = 'refunded'
 }
 
+// ✅ CORRIGÉ: TransactionType aligné avec la base de données
 export enum TransactionType {
   Deposit = 'deposit',
   EscrowHold = 'escrow_hold',
@@ -58,19 +61,68 @@ export enum TransactionType {
   Refund = 'refund',
   Commission = 'commission',
   Bonus = 'bonus',
-  Penalty = 'penalty'
+  Penalty = 'penalty',
+  // ✅ AJOUTÉ: Types supplémentaires utilisés dans le code
+  Earning = 'earning',
+  Transfer = 'transfer'
 }
 
+// ✅ CORRIGÉ: PaymentMethod aligné avec la base de données (Mobile Money Afrique)
 export enum PaymentMethod {
+  MtnMomo = 'mtn_momo',
+  MoovMoney = 'moov_money',
+  OrangeMoney = 'orange_money',
+  Wave = 'wave',
+  BankTransfer = 'bank_transfer',
+  Paypal = 'paypal',
+  // Anciens types pour compatibilité
   CreditCard = 'credit_card',
   DebitCard = 'debit_card',
-  MobileMoney = 'mobile_money',
-  BankTransfer = 'bank_transfer',
-  Paypal = 'paypal'
+  MobileMoney = 'mobile_money'
+}
+
+export enum ProposalStatus {
+  Pending = 'pending',
+  Shortlisted = 'shortlisted',
+  Accepted = 'accepted',
+  Rejected = 'rejected',
+  Withdrawn = 'withdrawn'
+}
+
+export enum DisputeType {
+  QualityIssue = 'quality_issue',
+  LateDelivery = 'late_delivery',
+  Communication = 'communication',
+  Fraud = 'fraud',
+  Other = 'other'
+}
+
+export enum DisputeStatus {
+  Open = 'open',
+  UnderReview = 'under_review',
+  AwaitingResponse = 'awaiting_response',
+  Resolved = 'resolved',
+  Escalated = 'escalated',
+  Closed = 'closed'
+}
+
+export enum NotificationType {
+  NewOrder = 'new_order',
+  OrderUpdate = 'order_update',
+  NewMessage = 'new_message',
+  NewProposal = 'new_proposal',
+  ProposalAccepted = 'proposal_accepted',
+  PaymentReceived = 'payment_received',
+  WithdrawalProcessed = 'withdrawal_processed',
+  NewReview = 'new_review',
+  DisputeOpened = 'dispute_opened',
+  DisputeResolved = 'dispute_resolved',
+  LevelUp = 'level_up',
+  System = 'system'
 }
 
 // ============================================
-// INTERFACES - Tables Principales (PARTIE_2)
+// INTERFACES - Tables Principales
 // ============================================
 
 export interface Profile {
@@ -98,43 +150,43 @@ export interface Profile {
     push: boolean;
     sms: boolean;
     new_messages: boolean;
-    new_projects: boolean;
-    order_updates: boolean;
+    new_orders: boolean;
     marketing: boolean;
   };
   
-  // Verification
-  is_verified: boolean;
-  is_identity_verified: boolean;
-  verification_documents: any[];
-  verification_requested_at: string | null;
-  verified_at: string | null;
-  
-  // Statistics
-  total_earnings: number;
-  total_spent: number;
-  completed_projects: number;
-  rating_avg: number;
-  response_time_avg: number;
-  
   // Freelancer specific
-  hourly_rate: number | null;
   level: FreelancerLevel;
-  available: boolean;
   skills: string[];
-  portfolio: any[];
+  portfolio_urls: string[];
+  hourly_rate: number | null;
+  available: boolean;
   
   // Client specific
   company_name: string | null;
   company_size: string | null;
   industry: string | null;
-  tax_id: string | null;
+  
+  // Statistics
+  rating_avg: number;
+  reviews_count: number;
+  orders_completed: number;
+  total_earnings: number;
+  total_spent: number;
+  response_time_avg: number | null;
+  
+  // Verification
+  is_verified: boolean;
+  is_identity_verified: boolean;
+  verification_documents: any;
+  
+  // Status
+  is_online: boolean;
+  last_login_at: string | null;
+  last_activity_at: string | null;
   
   // Timestamps
   created_at: string;
   updated_at: string;
-  last_login_at: string | null;
-  last_activity_at: string;
 }
 
 export interface Category {
@@ -144,16 +196,11 @@ export interface Category {
   slug: string;
   description: string | null;
   icon: string | null;
-  color: string;
+  color: string | null;
+  image_url: string | null;
   sort_order: number;
   is_active: boolean;
-  
-  // Statistics
-  total_services: number;
-  total_projects: number;
-  average_price: number;
-  
-  // Timestamps
+  services_count: number;
   created_at: string;
   updated_at: string;
 }
@@ -164,39 +211,33 @@ export interface Service {
   category_id: string;
   subcategory_id: string | null;
   
-  // Basic Info
+  // Basic info
   title: string;
   slug: string;
-  description: string;
   short_description: string | null;
+  description: string;
   
   // Media
   cover_image_url: string | null;
-  gallery: any[];
+  gallery: string[];
   video_url: string | null;
-  
-  // Configuration
-  status: ServiceStatus;
-  is_featured: boolean;
-  is_urgent: boolean;
-  delivery_days: number;
-  revision_limit: number;
-  additional_revision_price: number;
   
   // Pricing
   price_basic: number;
   price_standard: number | null;
   price_premium: number | null;
-  features_basic: string[];
-  features_standard: string[];
-  features_premium: string[];
   
-  // Requirements
-  requirements: any[];
+  // Delivery
+  delivery_days: number;
+  revision_limit: number;
+  additional_revision_price: number | null;
+  
+  // Features
+  tags: string[];
+  requirements: any;
   faq: any[];
   
-  // Tags & SEO
-  tags: string[];
+  // SEO
   seo_title: string | null;
   seo_description: string | null;
   seo_keywords: string[];
@@ -207,7 +248,12 @@ export interface Service {
   favorites_count: number;
   orders_count: number;
   rating_avg: number;
-  revenue_total: number;
+  reviews_count: number;
+  
+  // Status
+  status: ServiceStatus;
+  is_featured: boolean;
+  is_urgent: boolean;
   
   // Timestamps
   created_at: string;
@@ -221,34 +267,35 @@ export interface Project {
   client_id: string;
   category_id: string | null;
   subcategory_id: string | null;
+  assigned_freelancer_id: string | null;
   
-  // Project Info
+  // Basic info
   title: string;
   description: string;
-  requirements: string | null;
-  attachments: any[];
+  requirements: any;
+  attachments: string[];
   
-  // Budget & Timeline
+  // Budget
   budget_type: 'fixed' | 'hourly' | 'range';
   budget_min: number | null;
   budget_max: number | null;
-  hourly_rate: number | null;
+  
+  // Timeline
   deadline: string | null;
   estimated_duration: string | null;
+  
+  // Requirements
+  required_skills: string[];
+  experience_level: 'entry' | 'intermediate' | 'expert' | 'any';
   
   // Location
   location_type: 'remote' | 'onsite' | 'hybrid';
   city: string | null;
   country: string | null;
-  address: string | null;
   
   // Status
   status: ProjectStatus;
   visibility: 'public' | 'private' | 'invite_only';
-  
-  // Requirements
-  skills_required: string[];
-  experience_level: 'entry' | 'intermediate' | 'expert' | null;
   
   // Statistics
   views_count: number;
@@ -258,6 +305,9 @@ export interface Project {
   created_at: string;
   updated_at: string;
   published_at: string | null;
+  assigned_at: string | null;
+  started_at: string | null;
+  completed_at: string | null;
   deadline_at: string | null;
 }
 
@@ -266,19 +316,33 @@ export interface Proposal {
   project_id: string;
   freelancer_id: string;
   
-  // Offer details
+  // Proposal content
   cover_letter: string;
   proposed_budget: number;
   proposed_timeline: number;
-  attachments: any[];
+  
+  // Milestones
+  milestones: {
+    title: string;
+    description: string;
+    amount: number;
+    duration_days: number;
+  }[];
+  
+  // Attachments
+  attachments: string[];
   
   // Status
-  status: 'pending' | 'shortlisted' | 'accepted' | 'rejected' | 'withdrawn';
+  status: ProposalStatus;
+  
+  // Client response
+  client_notes: string | null;
   
   // Timestamps
   created_at: string;
   updated_at: string;
-  responded_at: string | null;
+  submitted_at: string | null;
+  reviewed_at: string | null;
 }
 
 export interface Order {
@@ -286,16 +350,16 @@ export interface Order {
   service_id: string | null;
   project_id: string | null;
   proposal_id: string | null;
-  
-  // Parties
   buyer_id: string;
   seller_id: string;
   
   // Order details
-  package_type: 'basic' | 'standard' | 'premium' | 'custom' | null;
   title: string;
   description: string | null;
   requirements: string | null;
+  
+  // Package
+  package_type: 'basic' | 'standard' | 'premium' | 'custom';
   
   // Pricing
   price: number;
@@ -305,12 +369,21 @@ export interface Order {
   
   // Delivery
   delivery_days: number;
+  due_date: string | null;
+  
+  // Revisions
   revisions_limit: number;
   revisions_used: number;
+  
+  // Deliverables
   deliverables: any[];
   
-  // Status tracking
+  // Status
   status: OrderStatus;
+  
+  // Timestamps
+  created_at: string;
+  updated_at: string;
   accepted_at: string | null;
   started_at: string | null;
   delivered_at: string | null;
@@ -318,18 +391,12 @@ export interface Order {
   cancelled_at: string | null;
   
   // Cancellation
-  cancellation_reason: string | null;
   cancelled_by: string | null;
-  refund_amount: number | null;
-  
-  // Timestamps
-  created_at: string;
-  updated_at: string;
-  due_date: string | null;
+  cancellation_reason: string | null;
 }
 
 // ============================================
-// INTERFACES - Tables Secondaires (PARTIE_3)
+// INTERFACES - Tables Financières
 // ============================================
 
 export interface Wallet {
@@ -395,61 +462,71 @@ export interface Transaction {
   processed_at: string | null;
 }
 
-export interface Message {
+export interface Withdrawal {
   id: string;
-  conversation_id: string;
-  order_id: string | null;
+  user_id: string;
+  wallet_id: string;
   
-  // Parties
-  sender_id: string;
-  receiver_id: string;
+  // Amount
+  amount: number;
+  currency: string;
+  fee: number;
+  net_amount: number;
   
-  // Content
-  message: string;
-  attachments: any[];
+  // Method
+  method: PaymentMethod;
+  details: any;
   
   // Status
-  is_read: boolean;
-  read_at: string | null;
-  is_deleted_by_sender: boolean;
-  is_deleted_by_receiver: boolean;
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
+  
+  // Processing
+  processed_by: string | null;
+  processed_at: string | null;
+  reference: string | null;
+  failure_reason: string | null;
   
   // Timestamps
   created_at: string;
   updated_at: string;
 }
 
-export interface Review {
+// ============================================
+// INTERFACES - Communication
+// ============================================
+
+export interface Conversation {
   id: string;
-  order_id: string;
+  participant_1_id: string;
+  participant_2_id: string;
+  order_id: string | null;
   
-  // Parties
-  reviewer_id: string;
-  reviewed_id: string;
+  // Status
+  last_message_at: string | null;
+  last_message_preview: string | null;
+  unread_count_1: number;
+  unread_count_2: number;
   
-  // Ratings
-  rating_overall: number;
-  rating_communication: number | null;
-  rating_quality: number | null;
-  rating_deadlines: number | null;
+  // Timestamps
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Message {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  receiver_id: string;
   
   // Content
-  title: string | null;
-  comment: string | null;
-  reply: string | null;
-  replied_at: string | null;
+  content: string;
+  attachments: string[];
   
-  // Metadata
-  is_public: boolean;
-  is_featured: boolean;
-  helpful_count: number;
-  report_count: number;
-  
-  // Moderation
-  status: 'pending' | 'published' | 'hidden' | 'removed';
-  moderated_by: string | null;
-  moderated_at: string | null;
-  moderation_notes: string | null;
+  // Status
+  is_read: boolean;
+  read_at: string | null;
+  is_edited: boolean;
+  is_deleted: boolean;
   
   // Timestamps
   created_at: string;
@@ -461,27 +538,49 @@ export interface Notification {
   user_id: string;
   
   // Content
-  type: string;
+  type: NotificationType;
   title: string;
   message: string;
   action_url: string | null;
-  
-  // Metadata
   data: any;
-  priority: 'low' | 'normal' | 'high' | 'urgent';
   
   // Status
   is_read: boolean;
   read_at: string | null;
+  priority: 'low' | 'normal' | 'high' | 'urgent';
   
-  // Delivery
-  channels: string[];
-  email_sent: boolean;
-  push_sent: boolean;
-  sms_sent: boolean;
-  
-  // Expiration
+  // Timestamps
+  created_at: string;
   expires_at: string | null;
+}
+
+export interface Review {
+  id: string;
+  order_id: string;
+  reviewer_id: string;
+  reviewed_id: string;
+  service_id: string | null;
+  
+  // Rating
+  rating: number;
+  communication_rating: number | null;
+  quality_rating: number | null;
+  delivery_rating: number | null;
+  
+  // Content
+  title: string | null;
+  comment: string;
+  
+  // Response
+  response: string | null;
+  response_at: string | null;
+  
+  // Status
+  status: 'pending' | 'published' | 'hidden' | 'flagged';
+  is_public: boolean;
+  
+  // Votes
+  helpful_count: number;
   
   // Timestamps
   created_at: string;
@@ -491,118 +590,85 @@ export interface Notification {
 export interface Dispute {
   id: string;
   order_id: string;
-  
-  // Parties
   opened_by: string;
   disputed_user_id: string;
   
   // Details
-  type: 'quality' | 'deadline' | 'communication' | 'payment' | 'other';
+  type: DisputeType;
   reason: string;
-  description: string | null;
-  desired_resolution: string | null;
+  description: string;
+  evidences: string[];
   
   // Status
-  status: 'open' | 'under_review' | 'awaiting_response' | 'resolved' | 'cancelled';
+  status: DisputeStatus;
   
   // Resolution
-  resolution_type: 'full_refund' | 'partial_refund' | 'deliver_work' | 'compensation' | 'no_action' | null;
-  resolution_details: string | null;
-  resolved_by: string | null;
+  assigned_to: string | null;
+  resolution: string | null;
+  resolution_notes: string | null;
+  refund_amount: number | null;
+  
+  // Timestamps
+  created_at: string;
+  updated_at: string;
   resolved_at: string | null;
-  
-  // Evidence
-  evidences: any[];
-  
-  // Communication
-  messages_count: number;
-  last_message_at: string | null;
-  
-  // Timestamps
-  created_at: string;
-  updated_at: string;
-  closed_at: string | null;
-}
-
-export interface PlatformSetting {
-  id: string;
-  category: string;
-  key: string;
-  value: any;
-  data_type: 'string' | 'number' | 'boolean' | 'array' | 'object';
-  description: string | null;
-  is_public: boolean;
-  is_editable: boolean;
-  
-  // Timestamps
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ActivityLog {
-  id: string;
-  user_id: string | null;
-  
-  // Activity
-  action: string;
-  entity_type: string | null;
-  entity_id: string | null;
-  
-  // Details
-  description: string | null;
-  ip_address: string | null;
-  user_agent: string | null;
-  location: any | null;
-  
-  // Metadata
-  metadata: any;
-  severity: 'info' | 'warning' | 'error' | 'critical';
-  
-  // Timestamps
-  created_at: string;
 }
 
 // ============================================
-// ADDITIONAL TYPES (code.sql et code.j.sql)
+// INTERFACES - Types avec Relations
 // ============================================
 
-export interface Withdrawal {
-  id: string;
-  user_id: string;
-  amount: number;
-  method: string;
-  details: any;
-  status: 'pending' | 'processed' | 'rejected';
-  processed_at: string | null;
-  created_at: string;
+export interface ServiceWithDetails extends Service {
+  freelancer?: Profile;
+  category?: Category;
+  subcategory?: Category;
+  reviews?: Review[];
 }
 
-// ============================================
-// UI HELPER TYPES
-// ============================================
-
-export interface ConversationInfo {
-  id: string;
-  participant: Profile;
-  last_message: Message;
-  unread_count: number;
-}
-
-export interface ServiceWithFreelancer extends Service {
-  freelancer: Profile;
+export interface ProjectWithDetails extends Project {
+  client?: Profile;
+  category?: Category;
+  subcategory?: Category;
+  proposals?: Proposal[];
+  assigned_freelancer?: Profile;
 }
 
 export interface OrderWithDetails extends Order {
-  buyer: Profile;
-  seller: Profile;
+  buyer?: Profile;
+  seller?: Profile;
   service?: Service;
+  project?: Project;
+  reviews?: Review[];
+}
+
+export interface ProposalWithDetails extends Proposal {
+  freelancer?: Profile;
   project?: Project;
 }
 
-export interface ProjectWithClient extends Project {
-  client: Profile;
+export interface ConversationWithDetails extends Conversation {
+  participant_1?: Profile;
+  participant_2?: Profile;
+  messages?: Message[];
+  order?: Order;
 }
 
-export interface ProposalWithFreelancer extends Proposal {
-  freelancer: Profile;
+// ============================================
+// INTERFACES - Props des composants
+// ============================================
+
+export interface OrdersProps {
+  userId: string;
+  onOrderClick?: (id: string) => void;
+}
+
+export interface ProfileProps {
+  userId: string;
+  onEdit?: () => void;
+}
+
+export interface EditProfileProps {
+  userId: string;
+  onSave?: (updatedProfile: Profile) => void;
+  onCancel?: () => void;
 }
