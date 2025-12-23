@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body { 
+    @apply bg-neutral-50 text-neutral-900 font-sans antialiased;
+    /* Un fond subtil pour donner de la texture */
+    background-image: radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.03) 0px, transparent 50%),
+                      radial-gradient(at 100% 100%, rgba(5, 150, 105, 0.03) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  /* Carte Premium de base */
+  .card-premium {
+    @apply bg-white rounded-3xl border border-neutral-100 shadow-premium transition-all duration-300;
+  }
+
+  /* Effet Verre (Glassmorphism) */
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-glass;
+  }
+  
+  .glass-dark {
+    @apply bg-neutral-900/90 backdrop-blur-xl border border-white/10 shadow-glass text-white;
+  }
+
+  /* Boutons modernisés */
+  .btn-premium { 
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl font-bold transition-all duration-300 active:scale-95; 
+  }
+  
+  .btn-gradient { 
+    @apply btn-premium bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg shadow-primary-500/30 hover:shadow-primary-500/50 hover:-translate-y-0.5; 
+  }
+  
+  .input-modern { 
+    @apply w-full px-5 py-3.5 bg-neutral-50 border border-neutral-200 rounded-2xl transition-all duration-200 focus:bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none placeholder:text-neutral-400 font-medium; 
+  }
+}
