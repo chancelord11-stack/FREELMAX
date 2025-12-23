@@ -216,7 +216,7 @@ function App() {
           
           <div className="pt-24">
             <Services 
-              onServiceClick={(id) => {
+              onViewService={(id) => {
                 handleLogin(); // Demander connexion pour voir les détails
               }}
             />
@@ -257,9 +257,10 @@ function App() {
               <Dashboard profile={profile} />
             )}
 
+            {/* ✅ CORRECTION: Utilisation de onViewService au lieu de onServiceClick */}
             {view === 'services' && (
               <Services 
-                onServiceClick={(id) => handleNavigate('service-detail', id)}
+                onViewService={(id) => handleNavigate('service-detail', id)}
               />
             )}
 
@@ -270,10 +271,10 @@ function App() {
               />
             )}
 
+            {/* ✅ CORRECTION: onViewProject et suppression de props inutiles */}
             {view === 'projects' && (
               <Projects 
-                profile={profile}
-                onProjectClick={(id) => handleNavigate('project-detail', id)}
+                onViewProject={(id) => handleNavigate('project-detail', id)}
               />
             )}
 
@@ -284,10 +285,11 @@ function App() {
               />
             )}
 
-            {view === 'orders' && (
+            {/* ✅ CORRECTION: onViewOrder et userId */}
+            {view === 'orders' && profile && (
               <Orders 
-                profile={profile}
-                onOrderClick={(id) => handleNavigate('order-detail', id)}
+                userId={profile.id}
+                onViewOrder={(id) => handleNavigate('order-detail', id)}
               />
             )}
 
@@ -302,9 +304,10 @@ function App() {
               <Messages userId={profile.id} />
             )}
 
+            {/* ✅ CORRECTION: userId pour ProfileView et ajout onEdit */}
             {view === 'profile' && profile && (
               <ProfileView 
-                profile={profile}
+                userId={profile.id}
                 onEdit={() => handleNavigate('profile-edit')}
               />
             )}
@@ -317,6 +320,7 @@ function App() {
               />
             )}
 
+            {/* ✅ CORRECTION: onUpdate reçoit un profil complet pour correspondre au handler */}
             {view === 'settings' && profile && (
               <Settings 
                 profile={profile}
