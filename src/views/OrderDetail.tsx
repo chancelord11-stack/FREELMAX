@@ -214,11 +214,13 @@ const OrderDetail: React.FC<OrderDetailProps> = ({ orderId, onBack }) => {
               <h3 className="font-semibold mb-4">Vendeur</h3>
               <div className="flex items-center gap-3">
                 <div className="avatar avatar-lg">
-                  {getInitials(order.seller.first_name, order.seller.last_name)}
+                  {/* ✅ CORRECTION: Ajout de ?. pour éviter l'erreur si seller est undefined */}
+                  {getInitials(order.seller?.first_name || '', order.seller?.last_name || '')}
                 </div>
                 <div>
-                  <div className="font-semibold">{order.seller.first_name}</div>
-                  <div className="text-sm text-neutral-600">{order.seller.headline}</div>
+                  {/* ✅ CORRECTION: Ajout de ?. */}
+                  <div className="font-semibold">{order.seller?.first_name}</div>
+                  <div className="text-sm text-neutral-600">{order.seller?.headline}</div>
                 </div>
               </div>
             </div>
