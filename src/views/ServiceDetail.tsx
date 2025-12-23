@@ -59,10 +59,12 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ serviceId, onBack }) => {
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <div className="avatar avatar-lg">
-                  {getInitials(service.freelancer.first_name, service.freelancer.last_name)}
+                  {/* ✅ CORRECTION: Ajout de ?. et fallback */}
+                  {getInitials(service.freelancer?.first_name || '', service.freelancer?.last_name || '')}
                 </div>
                 <div>
-                  <div className="font-semibold">{service.freelancer.first_name} {service.freelancer.last_name}</div>
+                  {/* ✅ CORRECTION: Ajout de ?. */}
+                  <div className="font-semibold">{service.freelancer?.first_name} {service.freelancer?.last_name}</div>
                   <div className="flex items-center gap-2 text-sm text-neutral-600">
                     <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                     <span>{service.rating_avg.toFixed(1)}</span>
