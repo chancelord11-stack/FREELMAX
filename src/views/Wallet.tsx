@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Wallet as WalletType, Transaction, TransactionType, PaymentMethod } from '../types';
+import { Wallet as WalletType, Transaction, TransactionType } from '../types';
 import { formatCurrency, formatDate } from '../utils/format';
-import { MOBILE_MONEY_PROVIDERS } from '../utils/constants';
-import { Wallet as WalletIcon, TrendingUp, Download, Phone } from 'lucide-react';
+import { Wallet as WalletIcon, TrendingUp, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import toast from 'react-hot-toast';
@@ -12,58 +11,30 @@ interface WalletProps {
   userId: string;
 }
 
-// Valeur par défaut complète pour le wallet
-const defaultWallet: WalletType = {
-  id: '',
-  user_id: '',
-  available_balance: 0,
-  pending_balance: 0,
-  total_earnings: 0,
-  total_withdrawn: 0,
-  withdrawal_method: null,
-  withdrawal_details: null,
-  min_withdrawal_amount: 5000,
-  successful_withdrawals: 0,
-  failed_withdrawals: 0,
-  last_withdrawal_at: null,
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
-};
-
 const Wallet: React.FC<WalletProps> = ({ userId }) => {
-  const [wallet, setWallet] = useState<WalletType>({
-    ...defaultWallet,
-    user_id: userId,
-  });
-  
+  const [wallet, setWallet] = useState<WalletType | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Charger les données du wallet
   useEffect(() => {
-    const loadWalletData = async () => {
+    const loadData = async () => {
       setLoading(true);
       try {
-        const walletData = await walletService.getWallet(userId);
-        if (walletData) {
-          setWallet(walletData);
-        }
-        
-        const transactionsData = await walletService.getTransactions(userId);
-        setTransactions(transactionsData);
-      } catch (error) {
-        console.error('Erreur lors du chargement du wallet:', error);
-        toast.error('Erreur lors du chargement du portefeuille');
-      } finally {
-        setLoading(false);
+        const w = await walletService.getWallet(userId);
+        if (w) setWallet(w);
+        const t = await walletService.getTransactions(userId);
+        setTransactions(t);
+      } catch (e) { 
+        console.error(e);
+        toast.error('Erreur chargement wallet'); 
+      } finally { 
+        setLoading(false); 
       }
     };
-    
-    loadWalletData();
+    loadData();
   }, [userId]);
 
-  // Données pour le graphique
+  // Données factices pour le graphique (à remplacer par des vraies données plus tard)
   const chartData = [
     { name: 'Lun', montant: 15000 },
     { name: 'Mar', montant: 22000 },
@@ -74,7 +45,7 @@ const Wallet: React.FC<WalletProps> = ({ userId }) => {
     { name: 'Dim', montant: 30000 },
   ];
 
-  // ✅ CORRIGÉ - Labels pour TOUS les types de transaction (incluant earning et transfer)
+  // ✅ CORRECTION: Ajout des clés manquantes 'earning' et 'transfer'
   const transactionTypeLabels: Record<TransactionType, string> = {
     [TransactionType.Deposit]: 'Dépôt',
     [TransactionType.EscrowHold]: 'Blocage Escrow',
@@ -84,28 +55,11 @@ const Wallet: React.FC<WalletProps> = ({ userId }) => {
     [TransactionType.Commission]: 'Commission',
     [TransactionType.Bonus]: 'Bonus',
     [TransactionType.Penalty]: 'Pénalité',
-    [TransactionType.Earning]: 'Gain',      // ✅ AJOUTÉ
-    [TransactionType.Transfer]: 'Transfert', // ✅ AJOUTÉ
+    [TransactionType.Earning]: 'Gain',      // Ajouté
+    [TransactionType.Transfer]: 'Transfert', // Ajouté
   };
 
-  // Fonction pour obtenir le label du type de transaction
-  const getTransactionTypeLabel = (type: TransactionType): string => {
-    return transactionTypeLabels[type] || type;
-  };
-
-  // Fonction pour obtenir la couleur selon le type
-  const getTransactionColor = (type: TransactionType): string => {
-    const positiveTypes = [
-      TransactionType.Deposit,
-      TransactionType.EscrowRelease,
-      TransactionType.Refund,
-      TransactionType.Bonus,
-      TransactionType.Earning,
-    ];
-    return positiveTypes.includes(type) ? 'text-green-600' : 'text-red-600';
-  };
-
-  if (loading) {
+  if (loading || !wallet) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
@@ -114,7 +68,7 @@ const Wallet: React.FC<WalletProps> = ({ userId }) => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
           Mon Portefeuille
@@ -174,27 +128,29 @@ const Wallet: React.FC<WalletProps> = ({ userId }) => {
         className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
       >
         <h2 className="text-xl font-semibold mb-4">Évolution des gains</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="name" stroke="#9ca3af" />
-            <YAxis stroke="#9ca3af" />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: '#fff',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-              }}
-            />
-            <Line
-              type="monotone"
-              dataKey="montant"
-              stroke="#6366f1"
-              strokeWidth={3}
-              dot={{ fill: '#6366f1', strokeWidth: 2 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        <div className="h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="name" stroke="#9ca3af" />
+              <YAxis stroke="#9ca3af" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#fff',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="montant"
+                stroke="#6366f1"
+                strokeWidth={3}
+                dot={{ fill: '#6366f1', strokeWidth: 2 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </motion.div>
 
       {/* Transactions récentes */}
@@ -206,12 +162,6 @@ const Wallet: React.FC<WalletProps> = ({ userId }) => {
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">Transactions récentes</h2>
-          <button
-            onClick={() => setShowWithdrawModal(true)}
-            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-          >
-            Retirer des fonds
-          </button>
         </div>
 
         {transactions.length === 0 ? (
@@ -237,14 +187,14 @@ const Wallet: React.FC<WalletProps> = ({ userId }) => {
                   </div>
                   <div>
                     <p className="font-medium text-gray-800">
-                      {getTransactionTypeLabel(transaction.type)}
+                      {transactionTypeLabels[transaction.type] || transaction.type}
                     </p>
                     <p className="text-sm text-gray-500">
                       {formatDate(transaction.created_at)}
                     </p>
                   </div>
                 </div>
-                <p className={`font-semibold ${getTransactionColor(transaction.type)}`}>
+                <p className={`font-semibold ${transaction.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {transaction.amount > 0 ? '+' : ''}
                   {formatCurrency(transaction.amount)}
                 </p>
