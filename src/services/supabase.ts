@@ -30,11 +30,18 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
   }
 };
 
-// ✅ AJOUTÉ: Helpers Auth manquants
-export const signIn = async ({ email, password }: any) => {
+// ✅ CORRECTION: Arguments séparés pour correspondre à Auth.tsx et AuthModal.tsx
+export const signIn = async (email: string, password: string) => {
   return supabase.auth.signInWithPassword({ email, password });
 };
 
-export const signUp = async ({ email, password, options }: any) => {
-  return supabase.auth.signUp({ email, password, options });
+// ✅ CORRECTION: Arguments séparés pour correspondre à Auth.tsx
+export const signUp = async (email: string, password: string, metadata?: any) => {
+  return supabase.auth.signUp({ 
+    email, 
+    password, 
+    options: {
+      data: metadata // Mappe les métadonnées vers options.data
+    }
+  });
 };
