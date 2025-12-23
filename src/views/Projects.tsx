@@ -25,11 +25,12 @@ const Projects: React.FC<ProjectsProps> = ({ onViewProject }) => {
   const loadProjects = async () => {
     try {
       setLoading(true);
-      const data = await projectService.searchProjects({
-        query: filters.search || undefined,
-        budgetMin: filters.budgetMin ? Number(filters.budgetMin) : undefined,
-        budgetMax: filters.budgetMax ? Number(filters.budgetMax) : undefined,
-        locationType: filters.locationType || undefined,
+      // ✅ CORRECTION: Utilisation de getPublicProjects avec les bons paramètres
+      const data = await projectService.getPublicProjects({
+        search: filters.search || undefined,
+        budget_min: filters.budgetMin ? Number(filters.budgetMin) : undefined,
+        budget_max: filters.budgetMax ? Number(filters.budgetMax) : undefined,
+        // Note: locationType n'est pas supporté par getPublicProjects pour le moment
       });
       setProjects(data);
     } catch (error) {
@@ -142,7 +143,8 @@ const ProjectCard: React.FC<{ project: ProjectWithClient; onClick: () => void }>
       onsite: 'Sur site',
       hybrid: 'Hybride',
     };
-    return { color: colors[project.location_type], label: labels[project.location_type] };
+    // @ts-ignore - Fallback au cas où le type serait vide
+    return { color: colors[project.location_type] || 'bg-gray-100', label: labels[project.location_type] || 'Non spécifié' };
   };
 
   const location = getLocationBadge();
@@ -163,13 +165,14 @@ const ProjectCard: React.FC<{ project: ProjectWithClient; onClick: () => void }>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4">
-        {project.skills_required.slice(0, 5).map((skill, i) => (
+        {/* ✅ CORRECTION: Utilisation de required_skills au lieu de skills_required */}
+        {project.required_skills?.slice(0, 5).map((skill, i) => (
           <span key={i} className="badge badge-neutral">
             {skill}
           </span>
         ))}
-        {project.skills_required.length > 5 && (
-          <span className="badge badge-neutral">+{project.skills_required.length - 5}</span>
+        {(project.required_skills?.length || 0) > 5 && (
+          <span className="badge badge-neutral">+{project.required_skills.length - 5}</span>
         )}
       </div>
 
@@ -180,6 +183,7 @@ const ProjectCard: React.FC<{ project: ProjectWithClient; onClick: () => void }>
             <span className="font-medium">
               {project.budget_type === 'fixed' && formatCurrency(project.budget_min || 0)}
               {project.budget_type === 'range' && `${formatCurrency(project.budget_min || 0)} - ${formatCurrency(project.budget_max || 0)}`}
+              {/* ✅ CORRECTION: hourly_rate est maintenant dans l'interface */}
               {project.budget_type === 'hourly' && `${formatCurrency(project.hourly_rate || 0)}/h`}
             </span>
           </div>
@@ -194,9 +198,11 @@ const ProjectCard: React.FC<{ project: ProjectWithClient; onClick: () => void }>
         </div>
         <div className="flex items-center gap-2">
           <div className="avatar avatar-sm">
-            {getInitials(project.client.first_name, project.client.last_name)}
+            {/* ✅ CORRECTION: Ajout de ?. pour sécuriser l'accès client */}
+            {getInitials(project.client?.first_name || '', project.client?.last_name || '')}
           </div>
-          <span className="text-sm font-medium">{project.client.first_name}</span>
+          {/* ✅ CORRECTION: Ajout de ?. */}
+          <span className="text-sm font-medium">{project.client?.first_name || 'Client'}</span>
         </div>
       </div>
     </div>
