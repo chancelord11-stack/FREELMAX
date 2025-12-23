@@ -8,9 +8,11 @@ import { MapPin, Briefcase, Star, Award, Clock, Shield, Edit } from 'lucide-reac
 
 interface ProfileProps {
   userId: string;
+  // ✅ CORRECTION: Ajout de la prop onEdit manquante
+  onEdit?: () => void;
 }
 
-const Profile: React.FC<ProfileProps> = ({ userId }) => {
+const Profile: React.FC<ProfileProps> = ({ userId, onEdit }) => {
   const [profile, setProfile] = useState<ProfileType | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -73,10 +75,13 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
               </div>
             </div>
           </div>
-          <button className="btn btn-secondary">
-            <Edit className="w-4 h-4" />
-            Modifier
-          </button>
+          {/* ✅ Utilisation de onEdit */}
+          {onEdit && (
+            <button onClick={onEdit} className="btn btn-secondary">
+              <Edit className="w-4 h-4" />
+              Modifier
+            </button>
+          )}
         </div>
 
         {/* Stats */}
