@@ -237,14 +237,16 @@ const ServiceCard: React.FC<{
         <div className="flex items-center gap-2 mb-3">
           <div className="relative">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-emerald-600 flex items-center justify-center text-[10px] text-white font-bold shadow-sm ring-2 ring-white">
-              {getInitials(service.freelancer.first_name, service.freelancer.last_name)}
+              {/* ✅ CORRECTION: Ajout de ?. et fallback */}
+              {getInitials(service.freelancer?.first_name || '', service.freelancer?.last_name || '')}
             </div>
             {/* Badge Online (simulé) */}
             <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></div>
           </div>
           <div className="flex flex-col">
             <span className="text-xs font-bold text-neutral-700 group-hover:text-primary-600 transition-colors">
-              {service.freelancer.first_name} {service.freelancer.last_name}
+              {/* ✅ CORRECTION: Ajout de ?. */}
+              {service.freelancer?.first_name} {service.freelancer?.last_name}
             </span>
             <span className="text-[10px] text-neutral-400 font-medium uppercase tracking-wide">
               Niveau Expert
