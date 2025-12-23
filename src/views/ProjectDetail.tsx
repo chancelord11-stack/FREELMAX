@@ -128,7 +128,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ projectId, onBack }) => {
           <div className="card p-6">
             <h2 className="text-xl font-semibold mb-4">Compétences requises</h2>
             <div className="flex flex-wrap gap-2">
-              {project.skills_required.map((skill, i) => (
+              {/* ✅ Utilisation de required_skills */}
+              {project.required_skills?.map((skill, i) => (
                 <span key={i} className="badge badge-primary text-sm px-4 py-2">
                   {skill}
                 </span>
@@ -170,16 +171,16 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ projectId, onBack }) => {
               <h3 className="font-semibold mb-4">À propos du client</h3>
               <div className="flex items-center gap-3 mb-4">
                 <div className="avatar avatar-lg">
-                  {getInitials(project.client.first_name, project.client.last_name)}
+                  {getInitials(project.client?.first_name || '', project.client?.last_name || '')}
                 </div>
                 <div>
-                  <div className="font-semibold">{project.client.first_name} {project.client.last_name}</div>
+                  <div className="font-semibold">{project.client?.first_name} {project.client?.last_name}</div>
                   <div className="text-sm text-neutral-600">
-                    {project.client.completed_projects} projets complétés
+                    {project.client?.completed_projects} projets complétés
                   </div>
                 </div>
               </div>
-              {project.client.company_name && (
+              {project.client?.company_name && (
                 <p className="text-sm text-neutral-600">
                   <span className="font-medium">Entreprise:</span> {project.client.company_name}
                 </p>
@@ -245,11 +246,13 @@ const ProposalCard: React.FC<{ proposal: ProposalWithFreelancer }> = ({ proposal
     <div className="flex items-start justify-between mb-3">
       <div className="flex items-center gap-3">
         <div className="avatar avatar-md">
-          {getInitials(proposal.freelancer.first_name, proposal.freelancer.last_name)}
+          {/* ✅ CORRECTION: Ajout de ?. et fallback */}
+          {getInitials(proposal.freelancer?.first_name || '', proposal.freelancer?.last_name || '')}
         </div>
         <div>
-          <div className="font-semibold">{proposal.freelancer.first_name} {proposal.freelancer.last_name}</div>
-          <div className="text-sm text-neutral-600">{proposal.freelancer.headline}</div>
+          {/* ✅ CORRECTION: Ajout de ?. */}
+          <div className="font-semibold">{proposal.freelancer?.first_name} {proposal.freelancer?.last_name}</div>
+          <div className="text-sm text-neutral-600">{proposal.freelancer?.headline}</div>
         </div>
       </div>
       <span className={`badge ${getStatusColor(proposal.status)}`}>
