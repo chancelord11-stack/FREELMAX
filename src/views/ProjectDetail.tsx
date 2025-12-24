@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { projectService, proposalService } from '../services/projectService';
 import { ProjectWithClient, ProposalWithFreelancer } from '../types';
 import { formatCurrency, formatRelativeDate, getInitials, getStatusColor, getStatusLabel } from '../utils/format';
 import { ArrowLeft, MapPin, DollarSign, Clock, Calendar, Users, Send, FileText } from 'lucide-react';
 
-interface ProjectDetailProps {
-  projectId: string;
-  onBack: () => void;
-}
-
-const ProjectDetail: React.FC<ProjectDetailProps> = ({ projectId, onBack }) => {
+const ProjectDetail: React.FC = () => {
+  const { id: projectId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [project, setProject] = useState<ProjectWithClient | null>(null);
   const [proposals, setProposals] = useState<ProposalWithFreelancer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,14 +19,16 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ projectId, onBack }) => {
   });
 
   useEffect(() => {
-    loadProjectData();
+    if (projectId) {
+      loadProjectData(projectId);
+    }
   }, [projectId]);
 
-  const loadProjectData = async () => {
+  const loadProjectData = async (id: string) => {
     try {
       const [projectData, proposalsData] = await Promise.all([
-        projectService.getProjectById(projectId),
-        proposalService.getProjectProposals(projectId),
+        projectService.getProjectById(id),
+        proposalService.getProjectProposals(id),
       ]);
       setProject(projectData);
       setProposals(proposalsData);
@@ -62,9 +62,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ projectId, onBack }) => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <button onClick={onBack} className="btn btn-secondary">
+      <button onClick={() => navigate('/projects')} className="btn btn-secondary">
         <ArrowLeft className="w-4 h-4" />
-        Retour
+        Retour aux projets
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
