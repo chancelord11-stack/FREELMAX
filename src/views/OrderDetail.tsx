@@ -1,28 +1,28 @@
 import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { orderService } from '../services/orderService';
 import { messageService } from '../services/messageService';
 import { OrderWithDetails, Message } from '../types';
 import { formatCurrency, formatRelativeDate, getStatusColor, getStatusLabel, getInitials } from '../utils/format';
 import { ArrowLeft, Clock, Package, MessageSquare, CheckCircle, XCircle, Send, FileText, Download } from 'lucide-react';
 
-interface OrderDetailProps {
-  orderId: string;
-  onBack: () => void;
-}
-
-const OrderDetail: React.FC<OrderDetailProps> = ({ orderId, onBack }) => {
+const OrderDetail: React.FC = () => {
+  const { id: orderId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [order, setOrder] = useState<OrderWithDetails | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadOrderData();
+    if (orderId) {
+      loadOrderData(orderId);
+    }
   }, [orderId]);
 
-  const loadOrderData = async () => {
+  const loadOrderData = async (id: string) => {
     try {
-      const data = await orderService.getOrderById(orderId);
+      const data = await orderService.getOrderById(id);
       setOrder(data);
       if (data) {
         const convId = messageService.createConversationId(data.buyer_id, data.seller_id);
@@ -66,9 +66,9 @@ const OrderDetail: React.FC<OrderDetailProps> = ({ orderId, onBack }) => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <button onClick={onBack} className="btn btn-secondary">
+      <button onClick={() => navigate('/orders')} className="btn btn-secondary">
         <ArrowLeft className="w-4 h-4" />
-        Retour
+        Retour aux commandes
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
