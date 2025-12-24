@@ -10,16 +10,31 @@ interface HeaderProps {
   onProfileClick: () => void;
   onSettingsClick: () => void;
   onLogout: () => void;
-  onLogoClick?: () => void; // Ajout prop
+  // 👇 C'est cette ligne qui manquait et qui cause l'erreur
+  onLogoClick?: () => void; 
 }
 
 const Header: React.FC<HeaderProps> = ({ 
-  profile, onMenuClick, onProfileClick, onSettingsClick, onLogout, onLogoClick 
+  profile, 
+  onMenuClick, 
+  onProfileClick, 
+  onSettingsClick, 
+  onLogout, 
+  onLogoClick // 👇 N'oubliez pas de le déstructurer ici aussi
 }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  // ... (Garder le code des notifications si désiré, ou le vider pour le moment)
+  // Close menus on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <header className="bg-white/80 backdrop-blur-xl border-b border-neutral-100 sticky top-0 z-20 h-16 md:h-20">
@@ -31,7 +46,7 @@ const Header: React.FC<HeaderProps> = ({
             <Menu className="w-6 h-6 text-neutral-600" />
           </button>
           
-          {/* Logo Mobile qui ramène à l'accueil */}
+          {/* Logo Mobile qui utilise la nouvelle prop */}
           <div onClick={onLogoClick} className="lg:hidden font-bold text-xl text-primary-600 cursor-pointer">
             Freenance
           </div>
@@ -49,7 +64,11 @@ const Header: React.FC<HeaderProps> = ({
         <div className="relative" ref={userMenuRef}>
            <button onClick={() => setShowUserMenu(!showUserMenu)} className="flex items-center gap-2 p-1.5 hover:bg-neutral-100 rounded-xl">
              <div className="w-9 h-9 bg-primary-100 rounded-full flex items-center justify-center text-primary-700 font-bold overflow-hidden">
-                {profile?.avatar_url ? <img src={profile.avatar_url} className="w-full h-full object-cover" /> : getInitials(profile?.first_name, profile?.last_name)}
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  getInitials(profile?.first_name, profile?.last_name)
+                )}
              </div>
              <ChevronDown className="w-4 h-4 text-neutral-500 hidden md:block" />
            </button>
@@ -83,4 +102,5 @@ const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
+
 export default Header;
