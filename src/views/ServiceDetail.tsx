@@ -1,26 +1,26 @@
 import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { serviceService } from '../services/serviceService';
 import { ServiceWithFreelancer } from '../types';
 import { formatCurrency, getInitials } from '../utils/format';
 import { ArrowLeft, Star, Clock, Check, Heart, Share2 } from 'lucide-react';
 
-interface ServiceDetailProps {
-  serviceId: string;
-  onBack: () => void;
-}
-
-const ServiceDetail: React.FC<ServiceDetailProps> = ({ serviceId, onBack }) => {
+const ServiceDetail: React.FC = () => {
+  const { id: serviceId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [service, setService] = useState<ServiceWithFreelancer | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedPackage, setSelectedPackage] = useState<'basic' | 'standard' | 'premium'>('basic');
 
   useEffect(() => {
-    loadService();
+    if (serviceId) {
+      loadService(serviceId);
+    }
   }, [serviceId]);
 
-  const loadService = async () => {
+  const loadService = async (id: string) => {
     try {
-      const data = await serviceService.getServiceById(serviceId);
+      const data = await serviceService.getServiceById(id);
       setService(data);
     } catch (error) {
       console.error('Erreur:', error);
@@ -41,9 +41,9 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ serviceId, onBack }) => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <button onClick={onBack} className="btn btn-secondary">
+      <button onClick={() => navigate('/services')} className="btn btn-secondary">
         <ArrowLeft className="w-4 h-4" />
-        Retour
+        Retour aux services
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
